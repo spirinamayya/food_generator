@@ -6,6 +6,7 @@
   <meta name="description" content="A cheerful random lunch menu picker.">
   <title>Lunch Lucky Dip</title>
   <style>
+    /* Reusable theme variables keep the visual palette consistent. */
     :root {
       --ink: #17253b;
       --paper: #fffaf0;
@@ -153,6 +154,7 @@
       outline-offset: 4px;
     }
 
+    /* Stable result and detail heights prevent layout jumps between dishes. */
     .result {
       height: 2.5em;
       min-height: 58px;
@@ -250,6 +252,7 @@
       transform: rotate(-6deg);
     }
 
+    /* Photos fill a fixed panel and stay cropped around their center. */
     .food-photo {
       position: absolute;
       inset: 0;
@@ -335,6 +338,7 @@
       }
     }
 
+    /* The mobile layout stacks content and simplifies the background. */
     @media (max-width: 760px) {
       body {
         place-items: start center;
@@ -386,6 +390,7 @@
   <main class="page">
     <p class="eyebrow">Lunch decision hotline</p>
     <section class="lunch-card" aria-labelledby="page-title">
+      <!-- This area contains the interactive picker and dish details. -->
       <div class="content">
         <h1 id="page-title">What's for <span>lunch?</span></h1>
         <p class="intro">Let chance choose your next delicious meal. One click, zero lunchtime debates.</p>
@@ -415,6 +420,7 @@
         </div>
       </div>
 
+      <!-- This panel displays the image matching the selected dish. -->
       <div class="photo-panel">
         <div class="photo-placeholder" id="photo-placeholder" aria-hidden="true">
           <div class="plate">?</div>
@@ -427,6 +433,7 @@
   </main>
 
   <script>
+    // Store the dishes and their display details.
     const lunchOptions = [
       {
         name: "Pizza",
@@ -570,6 +577,7 @@
       }
     ];
 
+    // Cache the page elements used during each selection.
     const button = document.querySelector("#generate-button");
     const cuisineFilter = document.querySelector("#cuisine-filter");
     const result = document.querySelector("#result");
@@ -580,31 +588,40 @@
     const detailTime = document.querySelector("#detail-time");
     const detailDifficulty = document.querySelector("#detail-difficulty");
     const recipeLink = document.querySelector("#recipe-link");
+    // Remember the previous dish to avoid an immediate repeat.
     let previousDishName = null;
 
+    // Add click event to button.
     button.addEventListener("click", () => {
+      // Filter dishes to the selected cuisine when needed.
       const filteredOptions = cuisineFilter.value === "All cuisines"
         ? lunchOptions
         : lunchOptions.filter((dish) => dish.cuisine === cuisineFilter.value);
+      // Exclude the previous dish from the current choices.
       const availableOptions = filteredOptions.filter((dish) => dish.name !== previousDishName);
+      // Choose one available dish at random.
       const randomIndex = Math.floor(Math.random() * availableOptions.length);
       const choice = availableOptions[randomIndex];
       previousDishName = choice.name;
 
+      // Update the result text and dish details.
       result.textContent = `Today's pick: ${choice.name}!\u00A0🥳`;
       detailCuisine.textContent = choice.cuisine;
       detailTime.textContent = choice.time;
       detailDifficulty.textContent = choice.difficulty;
       recipeLink.textContent = "Find a recipe";
+      // Encode the dish name before building the recipe URL.
       recipeLink.href = `https://www.allrecipes.com/search?q=${encodeURIComponent(choice.name)}`;
       recipeLink.classList.remove("is-hidden");
       recipeLink.removeAttribute("aria-hidden");
+      // Display the image matching the selected dish.
       foodPhoto.src = choice.photo;
       foodPhoto.alt = `A plate of ${choice.name}`;
       placeholder.hidden = true;
       foodPhoto.classList.add("is-visible");
       photoCredit.classList.add("is-visible");
 
+      // Restart the result animation for every new choice.
       result.classList.remove("is-new");
       void result.offsetWidth;
       result.classList.add("is-new");
